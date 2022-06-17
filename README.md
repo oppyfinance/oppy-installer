@@ -1,14 +1,10 @@
-# Osmosis Installer
-![](screenshot.png)
+# OppyChain Installer
+
+This Installer is forked from osmosis install
+
 Simple installer with the following features:
 - Installs dependencies
 - Creates swap file (if needed)
 - Joins testnet or mainnet
-- Initializes/installs statesync or snapshot
-- Creates cosmovisor or osmosisd background services
+- Install the oppy bridge
 
-####  To install Osmosisd, run the following in your terminal, then follow the on-screen instructions.
-
-```bash
-curl -sL https://get.osmosis.zone/install > i.py && python3 i.py
-```
