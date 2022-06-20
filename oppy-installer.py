@@ -1,3 +1,4 @@
+import pwd
 import subprocess
 import os
 import platform
@@ -6,7 +7,7 @@ import time
 import readline
 import random
 import argparse
-from mnemonic import Mnemonic
+import getpass
 
 parser = argparse.ArgumentParser(description="Use default settings")
 parser.add_argument('-m', action='store_true', help='use default settings with no input for mainnet')
@@ -259,7 +260,6 @@ def replayFromGenesisLevelDb():
     subprocess.run(["cp oppyChaind " + oppy_home + "/cosmovisor/genesis/bin"], stdout=subprocess.DEVNULL,
                    stderr=subprocess.DEVNULL, shell=True, env=my_env)
 
-
     # subprocess.run(["git checkout v3.1.0"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True,
     #                env=my_env)
     # subprocess.run(["make install"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
@@ -268,8 +268,8 @@ def replayFromGenesisLevelDb():
     print(bcolors.OKGREEN + "Adding Persistent Peers For Replay..." + bcolors.ENDC)
     peers = "9fd886cd0dd656e01aaedf61db63af1bf79b701e@164.92.138.207:26656,2dd86ed01eae5673df4452ce5b0dddb549f46a38@34.66.52.160:26656,2dd86ed01eae5673df4452ce5b0dddb549f46a38@34.82.89.95:26656"
     subprocess.run([
-                       "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
-                   shell=True)
+        "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
+        shell=True)
     subprocess.run(["clear"], shell=True)
     startReplayNow()
 
@@ -365,8 +365,8 @@ def replayFromGenesisRocksDb():
     print(bcolors.OKGREEN + "Adding Persistent Peers For Replay..." + bcolors.ENDC)
     peers = "9fd886cd0dd656e01aaedf61db63af1bf79b701e@164.92.138.207:26656,2dd86ed01eae5673df4452ce5b0dddb549f46a38@34.66.52.160:26656,2dd86ed01eae5673df4452ce5b0dddb549f46a38@34.82.89.95:26656"
     subprocess.run([
-                       "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
-                   shell=True)
+        "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
+        shell=True)
     subprocess.run(["clear"], shell=True)
     startReplayNow()
 
@@ -500,8 +500,8 @@ def snapshotInstall():
         subprocess.run(["brew install lz4"], shell=True, env=my_env)
     print(bcolors.OKGREEN + "Downloading Snapshot..." + bcolors.ENDC)
     proc = subprocess.run([
-                              "curl https://quicksync.io/oppy.json|jq -r '.[] |select(.file==\"" + fileName + "\")|select (.mirror==\"" + location + "\")|.url'"],
-                          capture_output=True, shell=True, text=True)
+        "curl https://quicksync.io/oppy.json|jq -r '.[] |select(.file==\"" + fileName + "\")|select (.mirror==\"" + location + "\")|.url'"],
+        capture_output=True, shell=True, text=True)
     os.chdir(os.path.expanduser(oppy_home))
     subprocess.run(["wget -O - " + proc.stdout.strip() + " | lz4 -d | tar -xvf -"], shell=True, env=my_env)
     subprocess.run(["clear"], shell=True)
@@ -647,13 +647,13 @@ def dataSyncSelectionTest():
 
 
 def installBridge():
-    print(bcolors.OKGREEN + "Now we install the bridge"+bcolors.ENDC)
+    print(bcolors.OKGREEN + "Now we install the bridge" + bcolors.ENDC)
     os.chdir(os.path.expanduser(HOME))
     subprocess.run(["git clone https://github.com/oppyfinance/oppy-bridge.git"], stdout=subprocess.DEVNULL,
                    stderr=subprocess.DEVNULL, shell=True)
 
-    os.chdir(os.path.expanduser(HOME+"/oppy-bridge"))
-    print(bcolors.OKGREEN + "(5/5) Installing Oppy bridge Binary..." + bcolors.ENDC)
+    os.chdir(os.path.expanduser(HOME + "/oppy-bridge"))
+    print(bcolors.OKGREEN + "Installing Oppy bridge Binary..." + bcolors.ENDC)
     subprocess.run(["git stash"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
     subprocess.run(["git pull"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
     subprocess.run(["git checkout dev"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
@@ -664,10 +664,9 @@ def installBridge():
 
     subprocess.run(["clear"], shell=True)
 
-
-
-
-
+    # now we create the token list
+    subprocess.run(["cp " + installer_path + "/tokenlist.json " + oppy_home + "/config/"], stdout=subprocess.DEVNULL,
+                   stderr=subprocess.DEVNULL, shell=True)
     partComplete()
 
 
@@ -706,8 +705,8 @@ def pruningSettings():
         subprocess.run(["sed -i -E 's/pruning = \"default\"/pruning = \"custom\"/g' " + oppy_home + "/config/app.toml"],
                        shell=True)
         subprocess.run([
-                           "sed -i -E 's/pruning-keep-recent = \"0\"/pruning-keep-recent = \"10000\"/g' " + oppy_home + "/config/app.toml"],
-                       shell=True)
+            "sed -i -E 's/pruning-keep-recent = \"0\"/pruning-keep-recent = \"10000\"/g' " + oppy_home + "/config/app.toml"],
+            shell=True)
         subprocess.run(["sed -i -E 's/pruning-interval = \"0\"/pruning-interval = \"" + str(
             primeNum) + "\"/g' " + oppy_home + "/config/app.toml"], shell=True)
         dataSyncSelection()
@@ -717,8 +716,8 @@ def pruningSettings():
         subprocess.run(["sed -i -E 's/pruning = \"default\"/pruning = \"custom\"/g' " + oppy_home + "/config/app.toml"],
                        shell=True)
         subprocess.run([
-                           "sed -i -E 's/pruning-keep-recent = \"0\"/pruning-keep-recent = \"10000\"/g' " + oppy_home + "/config/app.toml"],
-                       shell=True)
+            "sed -i -E 's/pruning-keep-recent = \"0\"/pruning-keep-recent = \"10000\"/g' " + oppy_home + "/config/app.toml"],
+            shell=True)
         subprocess.run(["sed -i -E 's/pruning-interval = \"0\"/pruning-interval = \"" + str(
             primeNum) + "\"/g' " + oppy_home + "/config/app.toml"], shell=True)
         dataSyncSelectionTest()
@@ -792,8 +791,8 @@ def setupMainnet():
                    stdout=sys.stdout, stderr=subprocess.DEVNULL, shell=True, env=my_env)
     print(bcolors.OKGREEN + "Downloading and Replacing Genesis..." + bcolors.ENDC)
     subprocess.run([
-                       "wget -O " + oppy_home + "/config/genesis.json https://github.com/oppy-labs/networks/raw/main/oppy-1/genesis.json"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
+        "wget -O " + oppy_home + "/config/genesis.json https://github.com/oppy-labs/networks/raw/main/oppy-1/genesis.json"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
     print(bcolors.OKGREEN + "Downloading and Replacing Addressbook..." + bcolors.ENDC)
     subprocess.run(["wget -O " + oppy_home + "/config/addrbook.json https://quicksync.io/addrbook.oppy.json"],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
@@ -806,7 +805,8 @@ def setupMainnet():
 
 
 def setupTestnet(nodeName):
-
+    global Passcode
+    Passcode = ""
     print(bcolors.OKGREEN + "Initializing Oppy Node " + nodeName + bcolors.ENDC)
     # subprocess.run(["oppyd unsafe-reset-all"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
     # subprocess.run(["rm " + oppy_home + "/config/config.toml"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -817,31 +817,77 @@ def setupTestnet(nodeName):
     #                shell=True, env=my_env)
 
     ## we need users to write down the mnemonic files
-    mnemo = Mnemonic("english")
-    words = mnemo.generate(strength=256)
-    print(bcolors.OKGREEN + """Please write down the mnemonic in a safe please and it is the only way to recover your node!!!"""+ bcolors.ENDC)
-    print(bcolors.FAIL + "\n\n"+words +"\n\n"+bcolors.ENDC)
+    # mnemo = Mnemonic("english")
+    # words = mnemo.generate(strength=256)
+    # print(
+    #     bcolors.OKGREEN + """Please write down the mnemonic in a safe please and it is the only way to recover your validator!!!""" + bcolors.ENDC)
+    # print(bcolors.FAIL + "\n\n" + words + "\n\n" + bcolors.ENDC)
+
+    Passcode2 = "d"
+    while Passcode != Passcode2:
+        Passcode = getpass.getpass(
+            prompt=bcolors.OKGREEN + 'Input desired passcode to encrypt your validator key: ' + bcolors.ENDC,
+            stream=None)
+        Passcode2 = getpass.getpass(
+            prompt=bcolors.OKGREEN + 'Re-Input desired passcode to encrypt your validator key: ' + bcolors.ENDC,
+            stream=None)
+
+        if Passcode2 != Passcode or len(Passcode) < 8:
+            print(bcolors.FAIL + "pass code not the same or the passcode is small than 8 characters" + bcolors.ENDC)
+        else:
+            break
+
+    subprocess.run(["oppyChaind init " + nodeName + " --chain-id=oppyChain-1 -o --home " + oppy_home],
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
+
+    p = subprocess.Popen(['oppyChaind keys add operator', '--keyring-backend file', '--recover'], shell=True,
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+
+
+    p.stdin.write(f"{Passcode.strip()}\n".encode("utf-8"))
+    p.stdin.flush()
+    p.stdin.write(f"{Passcode.strip()}\n".encode("utf-8"))
+    p.stdin.flush()
+
+    b = p.stderr.read().decode("utf-8").strip()
+    print(bcolors.FAIL + b + bcolors.ENDC)
 
     input(bcolors.OKGREEN + "PLEASE CONFIRM YOU HAVE WRITE DOWN THE MNEMONIC(1) " + bcolors.ENDC)
     input(bcolors.OKGREEN + "PLEASE CONFIRM YOU HAVE WRITE DOWN THE MNEMONIC(2) " + bcolors.ENDC)
     input(bcolors.OKGREEN + "PLEASE CONFIRM YOU HAVE WRITE DOWN THE MNEMONIC(3) " + bcolors.ENDC)
 
-    subprocess.run(["echo "+ words + "|oppyChaind init " + nodeName + " --chain-id=oppychain-1 -o --home " + oppy_home + "--recover"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
+    # we export the validator key
+    cmd = "oppyChaind keys export operator >>{}/config/operator.key".format(oppy_home)
+    p = subprocess.Popen([cmd], shell=True,
+                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+
+    p.stdin.write(f"{Passcode.strip()}\n".encode("utf-8"))
+    p.stdin.flush()
+    if os_name == "Linux":
+        username = pwd.getpwuid(os.getuid())[0]
+        sudoprefix = "sudo "
+        if username == "root":
+            sudoprefix = ""
+
+    GENIP = "67.219.100.37"
+    cmd2 = "sed -i \' 2i command={}/bridge_run.sh {} {} {}\'".format(HOME + "/go/bin", HOME + "/go/bin/oppyBridge",
+                                                                     GENIP, Passcode)
+    subprocess.run([sudoprefix + cmd2 + " /etc/supervisor/conf.d/bridge.conf"], shell=True)
+
     print(bcolors.OKGREEN + "Downloading and Replacing Genesis..." + bcolors.ENDC)
     subprocess.run(["wget -O " + oppy_home + "/config/genesis.json wget https://rpc.test.oppy.zone/genesis"],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
 
-    subprocess.run(["curl https://rpc.test.oppy.zone/genesis |jq '.result''.genesis'>" + oppy_home + "/config/genesis.json"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
-
+    subprocess.run(
+        ["curl https://rpc.test.oppy.zone/genesis |jq '.result''.genesis'>" + oppy_home + "/config/genesis.json"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
 
     print(bcolors.OKGREEN + "Finding and Replacing Seeds..." + bcolors.ENDC)
     peers = "b7aef07e409a37a36edb73d17d6fc8b4ada85169@67.219.100.37:26656"
     subprocess.run([
-                       "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
-                   shell=True)
-    #we avoid the seed node here
+        "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
+        shell=True)
+    # we avoid the seed node here
     # subprocess.run([
     #                    "sed -i -E 's/seeds = \"seeds = \"0f9a9c694c46bd28ad9ad6126e923993fc6c56b1@137.184.181.105:26656\"/g' " + oppy_home + "/config/config.toml"],
     #                shell=True)
@@ -869,8 +915,8 @@ def clientSettings():
             shell=True)
         # subprocess.run(["sed -i -E 's|node = \"tcp://localhost:26657\"|node = \"https://rpc-oppy.blockapsis.com:443\"|g' "+oppy_home+"/config/client.toml"], shell=True)
         subprocess.run([
-                           "sed -i -E 's|node = \"tcp://localhost:26657\"|node = \"http://oppy.artifact-staking.io:26657\"|g' " + oppy_home + "/config/client.toml"],
-                       shell=True)
+            "sed -i -E 's|node = \"tcp://localhost:26657\"|node = \"http://oppy.artifact-staking.io:26657\"|g' " + oppy_home + "/config/client.toml"],
+            shell=True)
         subprocess.run(["clear"], shell=True)
         clientComplete()
     elif networkAns == "2":
@@ -885,8 +931,8 @@ def clientSettings():
             ["sed -i -E 's/chain-id = \"\"/chain-id = \"osmo-test-4\"/g' " + oppy_home + "/config/client.toml"],
             shell=True)
         subprocess.run([
-                           "sed -i -E 's|node = \"tcp://localhost:26657\"|node = \"https://testnet-rpc.oppy.zone:443\"|g' " + oppy_home + "/config/client.toml"],
-                       shell=True)
+            "sed -i -E 's|node = \"tcp://localhost:26657\"|node = \"https://testnet-rpc.oppy.zone:443\"|g' " + oppy_home + "/config/client.toml"],
+            shell=True)
         subprocess.run(["clear"], shell=True)
         clientComplete()
 
@@ -974,13 +1020,18 @@ def installLocation():
 def initSetup():
     global my_env
     if os_name == "Linux":
+        username = pwd.getpwuid(os.getuid())[0]
+        sudoprefix = "sudo "
+        if username == "root":
+            sudoprefix = ""
         print(bcolors.OKGREEN + "Please wait while the following processes run:" + bcolors.ENDC)
         print(bcolors.OKGREEN + "(1/5) Updating Packages..." + bcolors.ENDC)
-        subprocess.run(["sudo apt-get update"], stdout=subprocess.DEVNULL, shell=True)
+        subprocess.run([sudoprefix + "apt-get update"], stdout=subprocess.DEVNULL, shell=True)
         subprocess.run(["DEBIAN_FRONTEND=noninteractive apt-get -y upgrade"], stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL, shell=True)
         print(bcolors.OKGREEN + "(2/5) Installing make and GCC..." + bcolors.ENDC)
-        subprocess.run(["sudo apt install git build-essential ufw curl jq snapd --yes"], stdout=subprocess.DEVNULL,
+        subprocess.run([sudoprefix + "apt install git build-essential ufw curl jq snapd supervisor --yes"],
+                       stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL, shell=True)
         print(bcolors.OKGREEN + "(3/5) Installing Go..." + bcolors.ENDC)
         subprocess.run(["wget -q -O - https://git.io/vQhTU | bash -s -- --version 1.17.2"], stdout=subprocess.DEVNULL,
@@ -988,9 +1039,26 @@ def initSetup():
         print(bcolors.OKGREEN + "(4/5) Reloading Profile..." + bcolors.ENDC)
         subprocess.run([". " + HOME + "/.profile"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
         os.chdir(os.path.expanduser(HOME))
-        subprocess.run(["git clone https://github.com/oppyfinance/oppychain.git"], stdout=subprocess.DEVNULL,
-                       stderr=subprocess.DEVNULL, shell=True)
+        subprocess.run(["git clone https://github.com/oppyfinance/oppychain.git"], capture_output=True, shell=True)
         os.chdir(os.path.expanduser(HOME + '/oppychain'))
+        # we move the supervisor configure to the correct location
+        sourcePath = installer_path + "/bridge.conf"
+
+        cmd = "sed -i \' 2i command={}/oppyChaind start\'".format(HOME + "/go/bin")
+
+        subprocess.run(["cp " + installer_path + "/bridge_run.sh " + HOME + "/go/bin"], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, shell=True)
+
+        subprocess.run([sudoprefix + " cp " + sourcePath + " /etc/supervisor/conf.d/"], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, shell=True)
+
+        subprocess.run([sudoprefix + " cp " + installer_path + "/oppyChain.conf" + " /etc/supervisor/conf.d/"],
+                       stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, shell=True)
+
+        subprocess.run([sudoprefix + cmd + " /etc/supervisor/conf.d/oppyChain.conf"], shell=True)
+        # subprocess.run([cmd2 + " " + HOME + "/go/bin/bridge_run.sh"], shell=True)
+        # subprocess.run([cmd4 + " " + HOME + "/go/bin/bridge_run.sh"], shell=True)
         # fixme we checkout the dev at the moment
         if networkAns == "1":
             print(bcolors.OKGREEN + "(5/5) Installing Oppychain Binary..." + bcolors.ENDC)
@@ -1001,19 +1069,20 @@ def initSetup():
             print(bcolors.OKGREEN + "(5/5) Installing Oppychain Binary..." + bcolors.ENDC)
             subprocess.run(["git stash"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
             subprocess.run(["git pull"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
-            subprocess.run(["git checkout dev"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+            subprocess.run(["git checkout testnet"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
         my_env = os.environ.copy()
         my_env["PATH"] = "/" + HOME + "/go/bin:/" + HOME + "/go/bin:/" + HOME + "/.go/bin:" + my_env["PATH"]
         subprocess.run(["make install"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
-        subprocess.run(["cp /root/oppychain/oppyChaind "+HOME+"/go/bin/"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
+        subprocess.run(["cp " + HOME + "/oppychain/oppyChaind " + HOME + "/go/bin/"], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, shell=True, env=my_env)
         subprocess.run(["clear"], shell=True)
     else:
         print(bcolors.OKGREEN + "Please wait while the following processes run:" + bcolors.ENDC)
         print(bcolors.OKGREEN + "(1/4) Installing brew and wget..." + bcolors.ENDC)
         subprocess.run(["sudo chown -R $(whoami) /usr/local/var/homebrew"], shell=True)
         subprocess.run([
-                           "echo | /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\""],
-                       shell=True)
+            "echo | /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\""],
+            shell=True)
         # subprocess.run(["sudo chown -R $(whoami) /usr/local/share/zsh /usr/local/share/zsh/site-functions"], shell=True)
         subprocess.run(["echo 'eval \"$(/opt/homebrew/bin/brew shellenv)\"' >> " + HOME + "/.zprofile"], shell=True)
         subprocess.run(["eval \"$(/opt/homebrew/bin/brew shellenv)\""], shell=True)
@@ -1032,7 +1101,8 @@ def initSetup():
         subprocess.run(["git checkout v7.2.0"], shell=True)
         my_env["PATH"] = "/" + HOME + "/go/bin:/" + HOME + "/go/bin:/" + HOME + "/.go/bin:" + my_env["PATH"]
         subprocess.run(["make install"], shell=True, env=my_env)
-        subprocess.run(["cp /root/oppychain/oppyChaind "+HOME+"/go/bin/"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
+        subprocess.run(["cp /root/oppychain/oppyChaind " + HOME + "/go/bin/"], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, shell=True, env=my_env)
         subprocess.run(["clear"], shell=True)
     installLocation()
 
@@ -1155,7 +1225,9 @@ def networkSelect():
 
 
 def start():
+    global installer_path
     subprocess.run(["clear"], shell=True)
+    installer_path = os.path.abspath(os.getcwd())
 
     def restart():
         global HOME
