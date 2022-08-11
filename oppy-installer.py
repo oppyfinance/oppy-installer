@@ -869,13 +869,13 @@ def setupTestnet(nodeName):
         if username == "root":
             sudoprefix = ""
 
-    GENIP = "67.219.100.37"
+    GENIP = "34.95.57.112"
     cmd2 = "sed -i \' 2i command={}/bridge_run.sh {} {} {}\'".format(HOME + "/go/bin", HOME + "/go/bin/oppyBridge",
                                                                      GENIP, Passcode)
     subprocess.run([sudoprefix + cmd2 + " /etc/supervisor/conf.d/bridge.conf"], shell=True)
 
     print(bcolors.OKGREEN + "Downloading and Replacing Genesis..." + bcolors.ENDC)
-    subprocess.run(["wget -O " + oppy_home + "/config/genesis.json wget https://rpc.test.oppy.zone/genesis"],
+    subprocess.run(["wget -O " + oppy_home + "/config/genesis.json wget http://$GENIP/genesis"],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
 
     subprocess.run(
@@ -883,7 +883,7 @@ def setupTestnet(nodeName):
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, env=my_env)
 
     print(bcolors.OKGREEN + "Finding and Replacing Seeds..." + bcolors.ENDC)
-    peers = "b7aef07e409a37a36edb73d17d6fc8b4ada85169@67.219.100.37:26656"
+    peers = "32ee6a16d34562e39f7893a3fd39ea656e20c812@34.95.57.112:26656"
     subprocess.run([
         "sed -i -E 's/persistent_peers = \"\"/persistent_peers = \"" + peers + "\"/g' " + oppy_home + "/config/config.toml"],
         shell=True)
@@ -1034,7 +1034,7 @@ def initSetup():
                        stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL, shell=True)
         print(bcolors.OKGREEN + "(3/5) Installing Go..." + bcolors.ENDC)
-        subprocess.run(["wget -q -O - https://git.io/vQhTU | bash -s -- --version 1.17.2"], stdout=subprocess.DEVNULL,
+        subprocess.run(["wget -q -O - https://git.io/vQhTU | bash -s -- --version 1.18.1"], stdout=subprocess.DEVNULL,
                        stderr=subprocess.DEVNULL, shell=True)
         print(bcolors.OKGREEN + "(4/5) Reloading Profile..." + bcolors.ENDC)
         subprocess.run([". " + HOME + "/.profile"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
